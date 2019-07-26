@@ -1,0 +1,45 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC  
+    "-//mybatis.org//DTD Mapper 3.0//EN"  
+    "http://mybatis.org/dtd/mybatis-3-mapper.dtd"> 
+   
+<mapper namespace="com.fh.shop.book.mapper.IBookMapper">
+	
+	
+
+<insert id="addBook" parameterType="com.fh.shop.book.po.Book">
+    insert into t_book (bookName, price, typeid) values (#{bookName},#{price},#{typeId})
+</insert>
+
+    <sql id="bookWhere">
+      <where>
+          <if test="bookName != null and bookName != ''">
+              bookname like concat('%',#{bookName},'%')
+          </if>
+          <if test="minPrice != null and minPrice > 0">
+             and price >= #{minPrice}
+          </if>
+          <if test="maxPrice != null and maxPrice > 0">
+              and price &lt;= #{maxPrice}
+          </if>
+
+      </where>
+    </sql>
+    
+    <select id="findBookList" parameterType="com.fh.shop.book.param.BookParam" resultType="com.fh.shop.book.po.Book">
+       select t.* from ( select b.id,bookName, price, typename from t_book b left join t_booktype bt
+        on b.typeid = bt.id
+        <include refid="bookWhere"></include>
+        order by b.id desc
+        ) t limit #{start},#{length}
+    </select>
+    
+    <select id="findBookCount" parameterType="com.fh.shop.book.param.BookParam" resultType="long">
+        select count(*) from t_book b left join t_booktype bt
+        on b.typeid = bt.id
+        <include refid="bookWhere"></include>
+    </select>
+
+
+	
+</mapper>
